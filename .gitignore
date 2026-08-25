@@ -1,0 +1,19 @@
+# ROS 2 build output
+build/
+install/
+log/
+
+# Python and editors
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.vscode/
+.idea/
+
+# Runtime output
+*.log
+motor_logs/
+
+# Keep maps and robot assets tracked intentionally.
+!maps/*.pgm
+!maps/*.yaml

@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    # Initial values measured in the transformed bike pose.
+    # Recalibrate these values on the physical robot before high-speed driving.
+    wheel_radius: 0.0309258
+    wheel_separation: 0.125
+    max_wheel_speed: 20.0
+    command_timeout: 0.5
+
+    # Polygon includes the measured body and a 4 cm safety margin.
+    footprint: "[[0.2535, 0.0776], [0.2535, -0.2305], [-0.3510, -0.2305], [-0.3510, 0.0776]]"

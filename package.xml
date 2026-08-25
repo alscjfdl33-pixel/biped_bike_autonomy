@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>biped_bike_autonomy</name>
+  <version>0.1.0</version>
+  <description>Simulation and real-hardware autonomy bringup for the biped bike robot.</description>
+
+  <maintainer email="alscjfdl33-pixel@users.noreply.github.com">Biped Bike Team</maintainer>
+  <license>BSD-3-Clause</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>biped_bike_robot</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
+  <exec_depend>nav2_regulated_pure_pursuit_controller</exec_depend>
+  <exec_depend>nav_msgs</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>sllidar_ros2</exec_depend>
+  <exec_depend>std_msgs</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
