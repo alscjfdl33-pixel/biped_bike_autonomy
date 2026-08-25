@@ -1,7 +1,7 @@
 # Biped Bike Autonomy
 
 ROS 2 Jazzy 기반 Biped Bike의 시뮬레이션 및 실제 자율주행 패키지입니다.
-기존 `biped_bike_robot` 패키지의 URDF, Gazebo 모델, 변신 및 하드웨어 기능을
+기존 `biped_bike_runtime` 패키지의 URDF, Gazebo 모델, 변신 및 하드웨어 기능을
 재사용하고 자율주행 실행 구성을 별도 저장소에서 관리합니다.
 
 ## 현재 검증 상태
@@ -31,7 +31,7 @@ colcon build --symlink-install
 source install/setup.bash
 ```
 
-`biped_bike_robot` 저장소도 같은 `src` 폴더에 있어야 합니다.
+`biped_bike_runtime` 저장소도 같은 `src` 폴더에 있어야 합니다.
 
 ## 실제 C1 단독 검증
 
@@ -72,13 +72,33 @@ odom -> base_footprint -> base_link -> lidar_link
 
 OpenCR 엔코더 설정이 확정되기 전에는 이 단계에서 로봇을 주행시키지 않습니다.
 
+## 실제 로봇 필수 동작 순서
+
+실제 로봇은 기본 자세에서 바로 자율주행하지 않습니다. 반드시 다음 순서를
+지켜야 합니다.
+
+```text
+기본 자세에서 하드웨어 연결
+→ bike_teleop.py로 바이크 자세 변신
+→ 두 바퀴 접촉과 관절 자세를 사람이 확인
+→ /odom 초기화 및 TF 확인
+→ 수동 저속 전진·회전·정지 검증
+→ SLAM 또는 Nav2 활성화
+→ 자율주행 허용
+```
+
+`bike_teleop.py`는 이름과 달리 현재 7단계 바이크 변신 궤적을 한 번 발행하는
+스크립트입니다. 변신 완료 전에는 `/cmd_vel`을 바퀴 명령으로 전달하면 안 됩니다.
+향후 실제 주행 런치에는 바이크 모드 확인 전 속도 명령을 차단하는 안전 게이트를
+추가합니다.
+
 ## 시뮬레이션
 
 ```bash
 ros2 launch biped_bike_autonomy sim_mapping.launch.py
 ```
 
-기존 `biped_bike_robot`의 Gazebo 미로를 사용합니다. 로봇 변신과 자세 안정화는
+기존 `biped_bike_runtime`의 Gazebo 미로를 사용합니다. 로봇 변신과 자세 안정화는
 기존 패키지의 명령을 사용합니다.
 
 ## 네트워크 운영 순서

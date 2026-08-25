@@ -66,8 +66,8 @@ class FootprintMeasurement(Node):
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
     def measure(self):
-        package_share = get_package_share_directory('biped_bike_robot')
-        urdf_path = os.path.join(package_share, 'urdf', 'biped_bike_robot.urdf')
+        package_share = get_package_share_directory('biped_bike_runtime')
+        urdf_path = os.path.join(package_share, 'urdf', 'biped_bike_runtime.urdf')
         root = ET.parse(urdf_path).getroot()
         points = []
         measured_links = []
@@ -101,7 +101,7 @@ class FootprintMeasurement(Node):
 
             for collision, mesh in mesh_collisions:
                 filename = mesh.get('filename')
-                prefix = 'package://biped_bike_robot/'
+                prefix = 'package://biped_bike_runtime/'
                 if not filename or not filename.startswith(prefix):
                     continue
                 mesh_path = os.path.join(package_share, filename[len(prefix):])

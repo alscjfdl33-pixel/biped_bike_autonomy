@@ -8,7 +8,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 
 def generate_launch_description():
     autonomy_share = get_package_share_directory('biped_bike_autonomy')
-    robot_share = get_package_share_directory('biped_bike_robot')
+    robot_share = get_package_share_directory('biped_bike_runtime')
     slam_share = get_package_share_directory('slam_toolbox')
 
     gazebo = IncludeLaunchDescription(
