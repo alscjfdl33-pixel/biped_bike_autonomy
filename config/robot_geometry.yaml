@@ -7,5 +7,6 @@
     max_wheel_speed: 20.0
     command_timeout: 0.5
 
-    # Polygon includes the measured body and a 4 cm safety margin.
+    # Conservative ver5 measurement retained for ver6 because it is larger than
+    # the ver6 mesh-only estimate. Re-measure after the physical bike pose is verified.
     footprint: "[[0.2535, 0.0776], [0.2535, -0.2305], [-0.3510, -0.2305], [-0.3510, 0.0776]]"
