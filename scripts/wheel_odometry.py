@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish differential-drive odometry from the simulated wheel joint states."""
+"""Publish differential-drive odometry from simulated or physical wheel states."""
 
 import math
 
@@ -30,17 +30,21 @@ class WheelOdometry(Node):
         self.declare_parameter('odom_frame', 'odom')
         self.declare_parameter('base_frame', 'base_footprint')
         self.declare_parameter('publish_tf', True)
+        self.declare_parameter('publish_rate_hz', 20.0)
 
         self.wheel_radius = float(self.get_parameter('wheel_radius').value)
         self.wheel_separation = float(self.get_parameter('wheel_separation').value)
         self.odom_frame = str(self.get_parameter('odom_frame').value)
         self.base_frame = str(self.get_parameter('base_frame').value)
         self.publish_tf = bool(self.get_parameter('publish_tf').value)
+        self.publish_rate_hz = float(self.get_parameter('publish_rate_hz').value)
 
         if self.wheel_radius <= 0.0:
             raise ValueError('wheel_radius must be greater than zero')
         if self.wheel_separation <= 0.0:
             raise ValueError('wheel_separation must be greater than zero')
+        if self.publish_rate_hz <= 0.0:
+            raise ValueError('publish_rate_hz must be greater than zero')
 
         self.x = 0.0
         self.y = 0.0
@@ -48,6 +52,9 @@ class WheelOdometry(Node):
         self.previous_left = None
         self.previous_right = None
         self.missing_joint_warning_sent = False
+        self.have_wheel_sample = False
+        self.linear_velocity = 0.0
+        self.angular_velocity = 0.0
 
         self.odom_publisher = self.create_publisher(Odometry, '/odom', 10)
         self.tf_broadcaster = TransformBroadcaster(self) if self.publish_tf else None
@@ -57,8 +64,20 @@ class WheelOdometry(Node):
             self.joint_state_callback,
             qos_profile_sensor_data,
         )
+        self.publish_timer = self.create_timer(
+            1.0 / self.publish_rate_hz,
+            self.publish_current_odometry,
+        )
 
     def joint_state_callback(self, msg):
+        has_left = LEFT_WHEEL_JOINT in msg.name
+        has_right = RIGHT_WHEEL_JOINT in msg.name
+
+        # Another publisher may provide only the fixed bike-pose joints for
+        # robot visualization. Those messages intentionally contain no wheels.
+        if not has_left and not has_right:
+            return
+
         try:
             left_index = msg.name.index(LEFT_WHEEL_JOINT)
             right_index = msg.name.index(RIGHT_WHEEL_JOINT)
@@ -74,7 +93,7 @@ class WheelOdometry(Node):
         if self.previous_left is None or self.previous_right is None:
             self.previous_left = left_position
             self.previous_right = right_position
-            self.publish_odometry(msg, 0.0, 0.0)
+            self.have_wheel_sample = True
             return
 
         left_distance = -wrapped_delta(left_position, self.previous_left) * self.wheel_radius
@@ -96,25 +115,28 @@ class WheelOdometry(Node):
             left_velocity = -msg.velocity[left_index] * self.wheel_radius
             right_velocity = msg.velocity[right_index] * self.wheel_radius
 
-        linear_velocity = (left_velocity + right_velocity) / 2.0
-        angular_velocity = (right_velocity - left_velocity) / self.wheel_separation
-        self.publish_odometry(msg, linear_velocity, angular_velocity)
+        self.linear_velocity = (left_velocity + right_velocity) / 2.0
+        self.angular_velocity = (right_velocity - left_velocity) / self.wheel_separation
+        self.have_wheel_sample = True
 
-    def publish_odometry(self, joint_state, linear_velocity, angular_velocity):
+    def publish_current_odometry(self):
+        if not self.have_wheel_sample:
+            return
+
         half_yaw = self.yaw / 2.0
         orientation_z = math.sin(half_yaw)
         orientation_w = math.cos(half_yaw)
 
         odom = Odometry()
-        odom.header.stamp = joint_state.header.stamp
+        odom.header.stamp = self.get_clock().now().to_msg()
         odom.header.frame_id = self.odom_frame
         odom.child_frame_id = self.base_frame
         odom.pose.pose.position.x = self.x
         odom.pose.pose.position.y = self.y
         odom.pose.pose.orientation.z = orientation_z
         odom.pose.pose.orientation.w = orientation_w
-        odom.twist.twist.linear.x = linear_velocity
-        odom.twist.twist.angular.z = angular_velocity
+        odom.twist.twist.linear.x = self.linear_velocity
+        odom.twist.twist.angular.z = self.angular_velocity
         odom.pose.covariance[0] = 0.02
         odom.pose.covariance[7] = 0.02
         odom.pose.covariance[35] = 0.05

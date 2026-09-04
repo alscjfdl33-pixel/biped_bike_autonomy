@@ -14,6 +14,7 @@ install(DIRECTORY
 install(PROGRAMS
   scripts/cmd_vel_to_wheels.py
   scripts/measure_footprint.py
+  scripts/scan_self_filter.py
   scripts/wheel_odometry.py
   DESTINATION lib/${PROJECT_NAME}
 )
