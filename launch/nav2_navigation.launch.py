@@ -22,6 +22,9 @@ def generate_launch_description():
 
     rewrites = {
         'bt_navigator.ros__parameters.robot_base_frame': 'base_footprint',
+        # The Nav2 default is only 20 ms. On the Raspberry Pi the controller
+        # can accept a path just after that deadline, causing a false abort.
+        'bt_navigator.ros__parameters.default_server_timeout': '1000',
         'behavior_server.ros__parameters.robot_base_frame': 'base_footprint',
         'local_costmap.local_costmap.ros__parameters.robot_base_frame':
             'base_footprint',
@@ -30,20 +33,20 @@ def generate_launch_description():
         'local_costmap.local_costmap.ros__parameters.footprint': footprint,
         'global_costmap.global_costmap.ros__parameters.footprint': footprint,
         'local_costmap.local_costmap.ros__parameters.inflation_layer.'
-        'inflation_radius': '0.45',
+        'inflation_radius': '0.30',
         'global_costmap.global_costmap.ros__parameters.inflation_layer.'
-        'inflation_radius': '0.45',
+        'inflation_radius': '0.30',
         'controller_server.ros__parameters.progress_checker.'
-        'required_movement_radius': '0.15',
+        'required_movement_radius': '0.05',
         'controller_server.ros__parameters.progress_checker.'
-        'movement_time_allowance': '15.0',
+        'movement_time_allowance': '25.0',
         'controller_server.ros__parameters.general_goal_checker.'
         'xy_goal_tolerance': '0.15',
         'controller_server.ros__parameters.general_goal_checker.'
         'yaw_goal_tolerance': '0.20',
         'controller_server.ros__parameters.FollowPath.plugin':
             'nav2_regulated_pure_pursuit_controller::RegulatedPurePursuitController',
-        'controller_server.ros__parameters.FollowPath.desired_linear_vel': '0.50',
+        'controller_server.ros__parameters.FollowPath.desired_linear_vel': '0.05',
         'controller_server.ros__parameters.FollowPath.lookahead_dist': '0.35',
         'controller_server.ros__parameters.FollowPath.min_lookahead_dist': '0.20',
         'controller_server.ros__parameters.FollowPath.max_lookahead_dist': '0.60',
@@ -51,7 +54,7 @@ def generate_launch_description():
         'controller_server.ros__parameters.FollowPath.'
         'use_velocity_scaled_lookahead_dist': 'true',
         'controller_server.ros__parameters.FollowPath.'
-        'rotate_to_heading_angular_vel': '1.5',
+        'rotate_to_heading_angular_vel': '0.6',
         'controller_server.ros__parameters.FollowPath.'
         'rotate_to_heading_min_angle': '0.35',
         'controller_server.ros__parameters.FollowPath.'
@@ -59,7 +62,7 @@ def generate_launch_description():
         'controller_server.ros__parameters.FollowPath.allow_reversing': 'false',
         'controller_server.ros__parameters.FollowPath.max_angular_accel': '3.0',
         'controller_server.ros__parameters.FollowPath.'
-        'min_approach_linear_velocity': '0.08',
+        'min_approach_linear_velocity': '0.02',
         'controller_server.ros__parameters.FollowPath.'
         'approach_velocity_scaling_dist': '0.40',
         'controller_server.ros__parameters.FollowPath.'
@@ -69,11 +72,13 @@ def generate_launch_description():
         'controller_server.ros__parameters.FollowPath.'
         'regulated_linear_scaling_min_radius': '0.40',
         'controller_server.ros__parameters.FollowPath.'
-        'regulated_linear_scaling_min_speed': '0.10',
+        'regulated_linear_scaling_min_speed': '0.02',
         'controller_server.ros__parameters.FollowPath.'
         'use_collision_detection': 'true',
         'controller_server.ros__parameters.FollowPath.'
-        'max_allowed_time_to_collision_up_to_carrot': '1.0',
+        'max_allowed_time_to_collision_up_to_carrot': '0.8',
+        'collision_monitor.ros__parameters.FootprintApproach.'
+        'time_before_collision': '0.8',
         'controller_server.ros__parameters.FollowPath.vx_max': '0.50',
         'controller_server.ros__parameters.FollowPath.vx_min': '-0.12',
         'controller_server.ros__parameters.FollowPath.wz_max': '1.5',
